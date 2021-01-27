@@ -1,4 +1,5 @@
 import requests, sys, json, os, subprocess, pexpect
+from graphviz import render
 
 for arg in sys.argv: 
     1
@@ -9,19 +10,19 @@ def read_json(file):
         data = json.load(f)
     return data
 
+#Récupération des infos
 info = read_json(arg)
-subprocess.run(["git", "clone",info['url']])
 
+#Clone du dépôt distant
+subprocess.run(["git", "clone", info['url']])
+
+#Récupération des informations
 id = info['id']
+file = info['file']
 path = os.getcwd()+"/"+id+"/"
-list = os.listdir(path)
-len(list)
-i = 0
-while list[i] != test['file']:
-	i+=1
-fichier = list[i]
-path2 = path+fichier
-subprocess.run(["python3", path2])
+
+#Exécution du fichier
+render('dot', 'json', path+file)
 
 #Ajout du résultat pour l'envoyer au dépot distant
 subprocess.Popen(['git', 'add', '.'], cwd=path)
@@ -30,11 +31,9 @@ subprocess.Popen(['git', 'add', '.'], cwd=path)
 subprocess.Popen(['git', 'commit' ,'-m', 'Push du résultat après traitement'], cwd=path)
 
 #Push du projet, rentrée auto du username et du password
-child = pexpect.spawn('git push', cwd=nameRepo)
+child = pexpect.spawn('git push', cwd=path)
 child.expect([pexpect.TIMEOUT, "Username for 'https://github.com':"])
 child.sendline("Projet704\n".encode())
 child.expect([pexpect.TIMEOUT, "Password for 'https://Projet704@github.com':"])
 child.sendline("MaxenceThomas51\n".encode())
 child.read()
-
-
